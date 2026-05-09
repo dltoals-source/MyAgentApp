@@ -8,6 +8,7 @@ backend/__pycache__/
 backend/*.pyc
 backend/.env
 backend/venv/
+backend/agents.db
 
 # General
 .DS_Store

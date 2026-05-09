@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
 const PRESETS = [
   {
@@ -25,22 +25,35 @@ const PRESETS = [
   },
 ];
 
-export default function NewAgent() {
+export default function EditAgent() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  function applyPreset(preset: (typeof PRESETS)[number]) {
-    setSystemPrompt(preset.system_prompt);
-  }
+  useEffect(() => {
+    fetch(`http://localhost:8000/agents/${id}`)
+      .then((r) => {
+        if (!r.ok) router.push("/dashboard");
+        return r.json();
+      })
+      .then((agent) => {
+        setName(agent.name);
+        setDescription(agent.description);
+        setSystemPrompt(agent.system_prompt ?? "");
+        setLoading(false);
+      })
+      .catch(() => router.push("/dashboard"));
+  }, [id, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const res = await fetch("http://localhost:8000/agents", {
-      method: "POST",
+    const res = await fetch(`http://localhost:8000/agents/${id}`, {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, description, system_prompt: systemPrompt }),
     });
@@ -48,9 +61,17 @@ export default function NewAgent() {
     else setSaving(false);
   }
 
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-400">Loading agent...</p>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen p-8 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Create a New Agent</h1>
+      <h1 className="text-2xl font-bold mb-6">Edit Agent</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
           <label className="block text-sm font-medium mb-1">Agent Name</label>
@@ -58,7 +79,6 @@ export default function NewAgent() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. My Support Agent"
             className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
@@ -69,7 +89,6 @@ export default function NewAgent() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g. Answers customer questions about our product"
             className="w-full border rounded-lg px-4 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
@@ -84,7 +103,7 @@ export default function NewAgent() {
               <button
                 key={p.label}
                 type="button"
-                onClick={() => applyPreset(p)}
+                onClick={() => setSystemPrompt(p.system_prompt)}
                 className="text-xs border rounded-full px-3 py-1 hover:bg-black hover:text-white transition"
               >
                 {p.label}
@@ -94,21 +113,27 @@ export default function NewAgent() {
           <textarea
             value={systemPrompt}
             onChange={(e) => setSystemPrompt(e.target.value)}
-            placeholder="Describe how your agent should behave, its tone, and any specific rules it should follow..."
+            placeholder="Describe how your agent should behave..."
             className="w-full border rounded-lg px-4 py-2 h-36 resize-none focus:outline-none focus:ring-2 focus:ring-black text-sm"
           />
-          <p className="text-xs text-gray-400 mt-1">
-            Pick a preset above or write your own. This shapes how your agent responds.
-          </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
-        >
-          {saving ? "Creating..." : "Create Agent"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex-1 border rounded-lg px-4 py-3 hover:bg-gray-50 transition text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex-1 bg-black text-white rounded-lg px-4 py-3 hover:bg-gray-800 transition text-sm disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </form>
     </main>
   );
