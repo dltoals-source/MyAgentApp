@@ -6,13 +6,9 @@ A no-code AI agent builder platform for non-technical users.
 
 ```
 MyAgentApp/
-├── frontend/    # Next.js web app
-├── backend/     # Python FastAPI + Claude AI
-└── wintermaze/  # Separate project: a browser maze tower defense
+├── frontend/   # Next.js web app
+└── backend/    # Python FastAPI + Claude AI
 ```
-
-`wintermaze/` is unrelated to the agent builder — its own stack, its own
-dependencies, its own README. The instructions below apply only to MyAgentApp.
 
 ## Getting Started
 
