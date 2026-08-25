@@ -1,5 +1,11 @@
 # MyAgentApp — Project Context
 
+> **This repo holds two unrelated projects.** Everything below describes
+> **MyAgentApp** (`backend/`, `frontend/`). The `wintermaze/` directory is a
+> separate browser game with its own `CLAUDE.md`, dependencies, and toolchain —
+> read `wintermaze/CLAUDE.md` when working in there and ignore this file.
+
+
 ## What this is
 A no-code AI agent builder. Users create custom AI agents with their own name, description, and personality instructions, then chat with them. The goal is to evolve into a platform where agents can use real tools (web search, email, calendar, etc.) and multiple AI models — so users can build agents that do actual grunt work, not just chat.
 
